@@ -1,10 +1,11 @@
-import { Personaje } from "../types/type";
+import { Personaje,Episodios } from "../types/type";
 import { PersonajesActions } from "../actions/personajeActions";
 
 type PersonajeState = {
   busqueda: string;
   favoritos: Personaje[];
   personajes: Personaje[];
+  arrayEpisodios:Episodios[];
   currentPersonaje: Personaje | null;
   currentPage: number;
   totalPages: number;
@@ -17,6 +18,7 @@ const initialState: PersonajeState = {
   busqueda: "",
   favoritos: [],
   personajes: [],
+  arrayEpisodios:[],
   currentPersonaje: null,
   currentPage: 1,
   totalPages: 1,
@@ -64,6 +66,7 @@ const personajesReducer = (
       return {
         ...state,
         currentPersonaje: action.payload.personaje,
+        arrayEpisodios:action.payload.arrayEpisodios,
         status: "Completed",
       };
     case "FIND_PERSONAJE_BY_ID_ERROR":

@@ -1,6 +1,6 @@
 import { Action, ActionCreator, ThunkAction } from "@reduxjs/toolkit";
 
-import { Personaje } from "../types/type";
+import { Episodios, Personaje } from "../types/type";
 import { IRootState } from "../store/personajeStore";
 
 
@@ -12,6 +12,7 @@ interface GetPersonajes {
 const getPersonajes = async (name: string, page: number): Promise<GetPersonajes> => {
   const response = await fetch(`https://rickandmortyapi.com/api/character/?name=${name}&page=${page}`);
   const { results, info } = await response.json();
+
   return {
     personajes: results,
     totalPages: info.pages
@@ -20,13 +21,22 @@ const getPersonajes = async (name: string, page: number): Promise<GetPersonajes>
 
 interface GetPersonaje {
   personaje: Personaje;
+  arrayEpisodios:Episodios[];
 }
 
 export const getPersonaje = async (id: number): Promise<GetPersonaje> => {
+  const arrayEpisodios = [];
   const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
   const personaje = await response.json();
+  for (let index = 0; index < personaje.episode.length; index++) {
+    const res = await fetch(personaje.episode[index]);
+    const episodios = await res.json();
+    arrayEpisodios.push(episodios);
+  };
+
   return {
-    personaje
+    personaje,
+    arrayEpisodios
   }
 }
 
@@ -56,7 +66,7 @@ interface FindPersonajeByIdAction extends Action {
 
 interface FindPersonajeByIdSuccessAction extends Action {
   type: "FIND_PERSONAJE_BY_ID_SUCCESS";
-  payload: { personaje: Personaje };
+  payload: { personaje: Personaje, arrayEpisodios: Episodios[]};
 }
 
 interface FindPersonajeByIdErrorAction extends Action {
@@ -163,10 +173,10 @@ const findPersonajeByIdAction: ActionCreator<FindPersonajeByIdAction> = (
 
 const findPersonajeByIdSuccess: ActionCreator<
   FindPersonajeByIdSuccessAction
-> = (personaje: Personaje): FindPersonajeByIdSuccessAction => {
+> = (personaje: Personaje, arrayEpisodios:Episodios[]): FindPersonajeByIdSuccessAction => {
   return {
     type: "FIND_PERSONAJE_BY_ID_SUCCESS",
-    payload: { personaje: personaje },
+    payload: { personaje: personaje, arrayEpisodios: arrayEpisodios },
   };
 };
 
@@ -185,8 +195,8 @@ export const findPersonajeByIdThunk = (
   return async (dispatch, getState) => {
     dispatch(findPersonajeByIdAction(id));
     try {
-      const response = await getPersonaje(id);
-      dispatch(findPersonajeByIdSuccess(response.personaje));
+      const response = await getPersonaje(id);      
+      dispatch(findPersonajeByIdSuccess(response.personaje, response.arrayEpisodios));
     } catch (error) {
       dispatch(findPersonajeByIdError(error));
     }

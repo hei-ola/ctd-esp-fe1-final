@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import "./Detalle.css";
 import BotonFavorito from "../componentes/botones/boton-favorito.componente";
 import TarjetaEpisodio from "../componentes/episodios/tarjeta-episodio.componente";
@@ -21,10 +20,9 @@ import { addFavoritoPersonajeAction, deleteFavoritoPersonaje } from "../redux/ac
 const PaginaDetalle = () => {
     const dispatch = useDispatch();
 
-    const {currentPersonaje, favoritos} = useSelector(
+    const { currentPersonaje, favoritos, arrayEpisodios } = useSelector(
         (state) => state.personaje
     );
-
     const handleFavouriteClick = () => {
         if (favoritos.find((element) => element.id === currentPersonaje.id)) {
             dispatch(deleteFavoritoPersonaje(currentPersonaje));
@@ -36,6 +34,7 @@ const PaginaDetalle = () => {
     return <div className="container">
         <h3>{currentPersonaje?.name}</h3>
         <div className={"detalle"}>
+
             <div className={"detalle-header"}>
                 <img src={currentPersonaje?.image} alt={currentPersonaje?.name} />
                 <div className={"detalle-header-texto"}>
@@ -56,9 +55,10 @@ const PaginaDetalle = () => {
         </div>
         <h4>Lista de episodios donde apareció el personaje</h4>
         <div className={"episodios-grilla"}>
-            <TarjetaEpisodio />
-            <TarjetaEpisodio />
-            <TarjetaEpisodio />
+            {arrayEpisodios && arrayEpisodios.map((item)=>(               
+                <TarjetaEpisodio key={item.id} arrayEpisodios={item} />
+               ))}
+                
         </div>
     </div>
 }
