@@ -1,4 +1,8 @@
+import { useDispatch } from 'react-redux';
+
+import { useSelector } from '../../redux/store/personajeStore';
 import './paginacion.css';
+import { findPersonajesThunk } from '../../redux/actions/personajeActions';
 
 /**
  * Componente que contiene los botones para paginar
@@ -9,11 +13,22 @@ import './paginacion.css';
  * @returns un JSX element 
  */
 const Paginacion = () => {
+    const dispatch = useDispatch();
+    const { busqueda, currentPage, totalPages } = useSelector(
+        (state) => state.personaje
+    );
 
-    return <div className="paginacion">
-        <button disabled={true} className={"primary"}>Anterior</button>
-        <button disabled={false} className={"primary"}>Siguiente</button>
-    </div>
-}
+    const handleClick = (event: any) => {
+        event.target.innerText === "Anterior"
+            ? dispatch(findPersonajesThunk(busqueda, currentPage - 1))
+            : dispatch(findPersonajesThunk(busqueda, currentPage + 1));
+    };
+    return (
+        <div className="paginacion">
+            <button className={"primary"} onClick={handleClick} disabled={currentPage === 1 ? true : false}>Anterior</button>
+            <button className={"primary"} onClick={handleClick} disabled={currentPage === totalPages ? true : false}>Siguiente</button>
+        </div>
+    );
+};
 
 export default Paginacion;
